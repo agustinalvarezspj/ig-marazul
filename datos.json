@@ -1,0 +1,4 @@
+{
+  "enc": 0,
+  "nota": "Tablero sin inicializar. El primer usuario se crea abriendo index.html en local; al publicar, este archivo se reemplaza por la version cifrada."
+}

@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IG orgánico · Mar Azul Suites</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root {
+    --pino: #1E3B32; --pino-claro: #2E5547; --mar: #2A6F8E;
+    --arena: #F6F3EC; --papel: #FFFFFF; --tinta: #22302B; --tinta-suave: #5C6B64;
+    --verde: #1D9E75; --ambar: #C98500; --rojo: #C4432B; --gris: #8B8A82; --linea: #E3DFD4;
+    --rosa: #B14A72;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Public Sans', system-ui, sans-serif; background: var(--arena); color: var(--tinta); line-height: 1.55; }
+  .wrap { max-width: 1000px; margin: 0 auto; padding: 0 20px 60px; }
+  button { font-family: inherit; cursor: pointer; }
+
+  .gate { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; background: var(--pino); }
+  .gatebox { background: var(--papel); border-radius: 16px; padding: 34px 32px; max-width: 400px; width: 100%; }
+  .gatebox h1 { font-family: 'Fraunces', serif; font-weight: 500; font-size: 26px; margin-bottom: 2px; }
+  .gatebox .sub { color: var(--tinta-suave); font-size: 14px; margin-bottom: 20px; }
+  .gatebox label { display: block; font-size: 12px; font-weight: 600; color: var(--tinta-suave); text-transform: uppercase; letter-spacing: .05em; margin: 12px 0 5px; }
+  .gatebox input { width: 100%; border: 1px solid var(--linea); border-radius: 10px; padding: 10px 12px; font-family: inherit; font-size: 15px; background: var(--arena); color: var(--tinta); }
+  .gatebox input:focus { outline: 2px solid var(--pino-claro); border-color: var(--pino-claro); }
+  .gatebox .go { width: 100%; margin-top: 18px; background: var(--pino); color: #EDF3EF; border: none; border-radius: 10px; padding: 12px; font-size: 15px; font-weight: 600; }
+  .gatebox .go:hover { background: var(--pino-claro); }
+  .gatebox .go:disabled { opacity: .6; cursor: wait; }
+  .gateerr { color: var(--rojo); font-size: 13px; margin-top: 10px; min-height: 18px; }
+  .gatenote { color: var(--tinta-suave); font-size: 12.5px; margin-top: 16px; border-top: 1px solid var(--linea); padding-top: 12px; line-height: 1.5; }
+
+  header.top { background: var(--pino); color: #EDF3EF; padding: 30px 20px 54px; }
+  header.top .inner { max-width: 1000px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-end; justify-content: space-between; }
+  .eyebrow { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: #A8C4B4; margin-bottom: 6px; }
+  header.top h1 { font-family: 'Fraunces', serif; font-weight: 500; font-size: clamp(22px, 4vw, 30px); }
+  .tools { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .savedot { font-size: 12px; color: #A8C4B4; }
+  .savedot b { color: #F3C9B9; font-weight: 600; }
+  .tbtn { background: transparent; border: 1px solid #40604F; color: #D7E5DB; padding: 7px 13px; border-radius: 99px; font-size: 13px; transition: .12s; }
+  .tbtn:hover { border-color: #A8C4B4; color: #fff; }
+  .tbtn.solid { background: #EDF3EF; border-color: #EDF3EF; color: var(--pino); font-weight: 600; }
+  .tbtn.solid:hover { background: #fff; }
+
+  .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-top: -32px; margin-bottom: 26px; }
+  .tab { background: var(--papel); border: 1px solid var(--linea); border-radius: 99px; padding: 9px 18px; font-size: 14px; font-weight: 500; color: var(--tinta-suave); transition: all .15s; }
+  .tab:hover { border-color: var(--pino-claro); color: var(--tinta); }
+  .tab.activa { background: var(--pino); border-color: var(--pino); color: #EDF3EF; }
+  .tab.especial { border-style: dashed; }
+
+  .sechead { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--tinta-suave); margin: 18px 0 8px; font-weight: 600; }
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+  .kpi { background: var(--papel); border: 1px solid var(--linea); border-radius: 14px; padding: 16px 18px; }
+  .kpi .label { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--tinta-suave); }
+  .kpi .value { font-family: 'Fraunces', serif; font-weight: 600; font-size: 26px; margin-top: 4px; font-variant-numeric: lining-nums tabular-nums; }
+  .kpi .delta { font-size: 12.5px; margin-top: 3px; font-weight: 500; }
+  .delta.up { color: var(--verde); } .delta.down { color: var(--rojo); } .delta.flat { color: var(--tinta-suave); font-weight: 400; }
+  .card { background: var(--papel); border: 1px solid var(--linea); border-radius: 14px; padding: 22px; margin-top: 20px; }
+  .card h3 { font-family: 'Fraunces', serif; font-weight: 500; font-size: 19px; margin-bottom: 4px; }
+  .card .sub { font-size: 13px; color: var(--tinta-suave); margin-bottom: 14px; }
+  .chart-box { position: relative; width: 100%; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--tinta-suave); padding: 8px 10px; border-bottom: 2px solid var(--linea); }
+  td { padding: 8px 10px; border-bottom: 1px solid var(--linea); font-variant-numeric: tabular-nums; }
+  tr:last-child td { border-bottom: none; }
+  .num { text-align: right; }
+  .btn { background: var(--pino); color: #EDF3EF; border: none; border-radius: 10px; padding: 11px 20px; font-size: 14px; font-weight: 600; }
+  .btn:hover { background: var(--pino-claro); }
+  .btn:disabled { opacity: .6; cursor: wait; }
+  .btn.sec { background: transparent; color: var(--tinta-suave); border: 1px solid var(--linea); font-weight: 500; }
+  .btn.sec:hover { color: var(--rojo); border-color: var(--rojo); background: transparent; }
+  .btn.chico { padding: 7px 14px; font-size: 13px; }
+  .acciones { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+  .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 14px; }
+  label.f { display: block; font-size: 12px; font-weight: 600; color: var(--tinta-suave); margin-bottom: 5px; text-transform: uppercase; letter-spacing: .05em; }
+  input[type=text], input[type=date], input[type=password], textarea { width: 100%; border: 1px solid var(--linea); border-radius: 10px; padding: 10px 12px; font-family: inherit; font-size: 14px; background: var(--arena); color: var(--tinta); }
+  textarea { min-height: 110px; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12.5px; }
+  input:focus, textarea:focus { outline: 2px solid var(--pino-claro); border-color: var(--pino-claro); }
+  .hint { font-size: 12.5px; color: var(--tinta-suave); margin-top: 6px; }
+  .aviso { border-left: 3px solid var(--mar); background: #EEF4F6; border-radius: 0 10px 10px 0; padding: 12px 16px; font-size: 14px; margin: 14px 0; }
+  .aviso.error { border-color: var(--rojo); background: #FCEBEB; }
+  .aviso.ok { border-color: var(--verde); background: #E1F5EE; }
+  .vacio { text-align: center; padding: 50px 20px; color: var(--tinta-suave); }
+  .vacio h2 { font-family: 'Fraunces', serif; font-weight: 500; color: var(--tinta); margin-bottom: 8px; }
+  .analisis { background: var(--pino); border-color: var(--pino); color: #EDF3EF; }
+  .analisis h3 { color: #EDF3EF; }
+  .analisis .sub { color: #A8C4B4; }
+  .analisis .cuerpo { font-size: 14.5px; line-height: 1.65; }
+  .analisis .cuerpo p { margin-bottom: 12px; }
+  .leyenda { display: flex; flex-wrap: wrap; gap: 16px; font-size: 12px; color: var(--tinta-suave); margin-bottom: 8px; }
+  .leyenda span { display: flex; align-items: center; gap: 5px; }
+  .cuadro { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+  .dropzone { border: 2px dashed var(--linea); border-radius: 14px; padding: 26px; text-align: center; color: var(--tinta-suave); font-size: 14px; margin-bottom: 14px; transition: .15s; cursor: pointer; }
+  .dropzone:hover, .dropzone.sobre { border-color: var(--pino-claro); color: var(--tinta); background: #FBFAF6; }
+
+  .modalbg { position: fixed; inset: 0; background: rgba(30,59,50,.5); display: none; align-items: center; justify-content: center; z-index: 70; padding: 18px; }
+  .modalbg.show { display: flex; }
+  .modal { background: var(--papel); border-radius: 16px; padding: 24px; max-width: 420px; width: 100%; max-height: 90vh; overflow-y: auto; }
+  .modal h3 { font-family: 'Fraunces', serif; font-weight: 500; font-size: 20px; margin-bottom: 4px; }
+  .modal p { color: var(--tinta-suave); font-size: 13.5px; margin-bottom: 14px; }
+  .modal .acts { display: flex; gap: 8px; justify-content: flex-end; margin-top: 18px; }
+  .userrow { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--linea); font-size: 14px; }
+  .userrow .me { font-size: 11px; color: var(--tinta-suave); text-transform: uppercase; letter-spacing: .06em; }
+  .toast { position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%) translateY(12px); background: var(--tinta); color: #fff; padding: 10px 18px; border-radius: 99px; font-size: 13.5px; opacity: 0; pointer-events: none; transition: .2s; z-index: 90; }
+  .toast.show { opacity: 1; transform: translateX(-50%); }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<div class="gate" id="gate">
+  <div class="gatebox">
+    <h1 id="gTitle">IG orgánico</h1>
+    <p class="sub" id="gSub">Mar Azul Suites</p>
+    <div id="gForm">
+      <label for="gUser">Usuario</label>
+      <input id="gUser" autocomplete="username" spellcheck="false">
+      <label for="gPass">Contraseña</label>
+      <input id="gPass" type="password" autocomplete="current-password">
+      <div id="gPass2wrap" style="display:none">
+        <label for="gPass2">Repetir contraseña</label>
+        <input id="gPass2" type="password" autocomplete="new-password">
+      </div>
+      <button class="go" id="gGo">Entrar</button>
+      <div class="gateerr" id="gErr"></div>
+    </div>
+    <div class="gatenote" id="gNote"></div>
+  </div>
+</div>
+
+<div id="app" style="display:none">
+  <header class="top">
+    <div class="inner">
+      <div>
+        <p class="eyebrow">Mar Azul Suites · @marazulsuites</p>
+        <h1>IG orgánico · corte de los viernes</h1>
+      </div>
+      <div class="tools">
+        <span class="savedot" id="savedot"></span>
+        <span class="savedot">usuario: <b id="whoami"></b></span>
+        <button class="tbtn" id="btnTeam">Equipo</button>
+        <button class="tbtn" id="btnCsv">CSV</button>
+        <button class="tbtn" id="btnImport">Importar semilla</button>
+        <button class="tbtn" id="btnDrop" style="display:none">Descartar borrador</button>
+        <button class="tbtn solid" id="btnPub" style="display:none">Publicar cambios</button>
+      </div>
+    </div>
+  </header>
+  <div class="wrap">
+    <div class="tabs" id="tabs"></div>
+    <div id="contenido"></div>
+  </div>
+</div>
+
+<div class="modalbg" id="teamModal">
+  <div class="modal">
+    <h3>Equipo</h3>
+    <p>Cada persona entra con su usuario y su propia contraseña. Los cambios recién valen después de publicar.</p>
+    <div id="teamList"></div>
+    <label class="f" style="margin-top:18px">Agregar persona</label>
+    <input id="tUser" type="text" placeholder="usuario" spellcheck="false">
+    <input id="tPass" type="password" placeholder="contraseña inicial (12+)" style="margin-top:6px">
+    <button class="btn chico" id="tAdd" style="margin-top:8px">Agregar</button>
+    <label class="f" style="margin-top:18px">Cambiar mi contraseña</label>
+    <input id="tNewPass" type="password" placeholder="nueva contraseña (12+)">
+    <button class="btn chico" id="tChange" style="margin-top:8px">Cambiar</button>
+    <label class="f" style="margin-top:18px">Publicación directa a GitHub</label>
+    <div id="tTokState" class="hint" style="margin:4px 0 6px"></div>
+    <input id="tToken" type="password" placeholder="pegá acá el token de GitHub" autocomplete="off">
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <button class="btn chico" id="tTokSave">Guardar token</button>
+      <button class="btn sec chico" id="tTokDrop">Quitar</button>
+    </div>
+    <div class="acts"><button class="btn" id="tClose">Cerrar</button></div>
+  </div>
+</div>
+
+<input type="file" id="fileSemilla" accept="application/json" style="display:none">
+<input type="file" id="fileExports" accept=".csv" multiple style="display:none">
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+"use strict";
+const $ = s => document.querySelector(s);
+function toast(m){ const t=$("#toast"); t.textContent=m; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"),2600); }
+
+const nf = v => v == null ? '—' : Math.round(v).toLocaleString('es-AR');
+const pct = v => v == null ? '—' : v.toLocaleString('es-AR', { maximumFractionDigits: 2 }) + '%';
+const fmtDia = iso => parseInt(iso.slice(8,10),10) + '/' + parseInt(iso.slice(5,7),10);
+const hoyISO = () => new Date().toISOString().slice(0,10);
+function sumaDia(iso, dias){ const d = new Date(iso + 'T12:00:00'); d.setDate(d.getDate() + dias); return d.toISOString().slice(0,10); }
+
+const METRICAS = [
+  ['alcance','Alcance'], ['vistas','Visualizaciones'], ['interacciones','Interacciones'],
+  ['clics','Clics al enlace'], ['visitas','Visitas al perfil'], ['seguidores','Seguidores nuevos']
+];
+const MESES_L = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+
+/* ===================== ESTADO ===================== */
+const state = { dias: {}, posts: [], cortes: [], audiencia: null };
+let vista = null, editando = null, charts = [], saveTimer = null;
+
+/* ===================== CIFRADO (igual que ocupación/ads) ===================== */
+const ITERS = 600000;
+const TE = new TextEncoder(), TD = new TextDecoder();
+const b64 = b => btoa(String.fromCharCode.apply(null, new Uint8Array(b)));
+const ub64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+const rand = n => crypto.getRandomValues(new Uint8Array(n));
+async function kdf(pass, salt) {
+  const km = await crypto.subtle.importKey("raw", TE.encode(pass), "PBKDF2", false, ["deriveKey"]);
+  return crypto.subtle.deriveKey({ name: "PBKDF2", salt, iterations: ITERS, hash: "SHA-256" },
+    km, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
+}
+const rawKey = raw => crypto.subtle.importKey("raw", raw, { name: "AES-GCM" }, false, ["encrypt", "decrypt"]);
+async function seal(key, bytes) { const iv = rand(12);
+  return { iv: b64(iv), ct: b64(await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, bytes)) }; }
+async function open_(key, iv, ct) {
+  return new Uint8Array(await crypto.subtle.decrypt({ name: "AES-GCM", iv: ub64(iv) }, key, ub64(ct))); }
+async function wrapFor(user, pass, master) {
+  const salt = rand(16); const k = await kdf(pass, salt); const s = await seal(k, master);
+  return { u: user, salt: b64(salt), iv: s.iv, wk: s.ct };
+}
+
+let envelope = null, MASTER = null, MKEY = null, CURUSER = null;
+let published = null, dirty = false;
+const KEYD = "ig_marazul_draft";
+const stamp = () => new Date().toISOString();
+const norm = s => s.trim().toLowerCase();
+const payload = () => ({ dias: state.dias, posts: state.posts, cortes: state.cortes, audiencia: state.audiencia });
+
+async function buildEnvelope() {
+  const s = await seal(MKEY, TE.encode(JSON.stringify(payload())));
+  return { enc: 1, iters: ITERS, updated: stamp(), users: envelope.users, iv: s.iv, ct: s.ct };
+}
+
+/* ===================== ACCESO ===================== */
+const gErr = m => { $("#gErr").textContent = m || ""; };
+let failedTries = 0;
+const LOCAL = location.protocol === "file:" ||
+              location.hostname === "localhost" || location.hostname === "127.0.0.1";
+
+async function bootGate() {
+  let remote = null;
+  try { const r = await fetch("datos.json?v=" + Date.now(), { cache: "no-store" }); if (r.ok) remote = await r.json(); }
+  catch (e) {}
+  envelope = remote;
+  if (remote && remote.enc) {
+    $("#gNote").textContent = "Los datos están cifrados. Si perdés la contraseña no hay forma de recuperarlos.";
+    $("#gUser").focus();
+  } else if (LOCAL) {
+    $("#gTitle").textContent = "Primer acceso";
+    $("#gSub").textContent = "Creá tu usuario para cifrar el tablero.";
+    $("#gPass2wrap").style.display = "";
+    $("#gGo").textContent = "Crear y cifrar";
+    $("#gNote").textContent = "Usá una frase larga, de 12 caracteres para arriba. Anotala en tu gestor de contraseñas antes de seguir: no se puede recuperar. Después, importá la semilla y publicá.";
+    $("#gUser").focus();
+  } else {
+    $("#gTitle").textContent = "Tablero sin inicializar";
+    $("#gSub").textContent = "Todavía no tiene usuarios.";
+    $("#gForm").style.display = "none";
+    $("#gNote").textContent = "El primer usuario se crea abriendo el archivo index.html desde la computadora del administrador, no desde acá.";
+  }
+}
+$("#gGo").onclick = submitGate;
+["gUser","gPass","gPass2"].forEach(id => {
+  $("#"+id).addEventListener("keydown", e => { if (e.key === "Enter") submitGate(); });
+});
+async function submitGate() {
+  const u = norm($("#gUser").value), p = $("#gPass").value;
+  gErr("");
+  if (!u || !p) { gErr("Completá usuario y contraseña."); return; }
+  $("#gGo").disabled = true; $("#gGo").textContent = "Un momento…";
+  try {
+    if (envelope && envelope.enc) await doLogin(u, p);
+    else await doSetup(u, p, $("#gPass2").value);
+  } catch (err) {
+    failedTries++;
+    gErr(err.message || "No se pudo entrar.");
+    await new Promise(r => setTimeout(r, Math.min(4000, 600 * failedTries)));
+  }
+  $("#gGo").disabled = false;
+  $("#gGo").textContent = (envelope && envelope.enc) ? "Entrar" : "Crear y cifrar";
+}
+async function doLogin(u, p) {
+  const e = envelope.users.find(x => x.u === u);
+  const fake = e || { salt: b64(rand(16)), iv: b64(rand(12)), wk: b64(rand(48)) };
+  let master;
+  try {
+    const k = await kdf(p, ub64(fake.salt));
+    master = await open_(k, fake.iv, fake.wk);
+  } catch (err) { throw new Error("Usuario o contraseña incorrectos."); }
+  MASTER = master; MKEY = await rawKey(master); CURUSER = u;
+  const raw = await open_(MKEY, envelope.iv, envelope.ct);
+  published = JSON.parse(TD.decode(raw)); published.updated = envelope.updated;
+  await start();
+}
+async function doSetup(u, p, p2) {
+  if (p.length < 12) throw new Error("Mínimo 12 caracteres.");
+  if (p !== p2) throw new Error("Las contraseñas no coinciden.");
+  MASTER = rand(32); MKEY = await rawKey(MASTER); CURUSER = u;
+  envelope = { enc: 1, iters: ITERS, users: [await wrapFor(u, p, MASTER)] };
+  published = null;
+  await start();
+  dirty = true; markState();
+  toast("Cifrado listo. Importá la semilla y publicá.");
+}
+
+/* ===================== ARRANQUE / BORRADOR ===================== */
+async function start() {
+  $("#gate").style.display = "none";
+  $("#app").style.display = "";
+  let local = null;
+  try {
+    const d = JSON.parse(localStorage.getItem(KEYD) || "null");
+    if (d) local = JSON.parse(TD.decode(await open_(MKEY, d.iv, d.ct))), local.updated = d.updated;
+  } catch (e) {}
+  const localNewer = local && (!published || (local.updated || "") > (published.updated || ""));
+  const src = localNewer ? local : published;
+  dirty = !!localNewer;
+  if (src) { state.dias = src.dias || {}; state.posts = src.posts || []; state.cortes = src.cortes || []; state.audiencia = src.audiencia || null; }
+  state.cortes.sort((a, b) => a.fecha.localeCompare(b.fecha));
+  vista = state.cortes.length ? state.cortes[state.cortes.length - 1].id : 'form';
+  $("#whoami").textContent = CURUSER;
+  markState(); render();
+}
+function markState() {
+  const d = $("#savedot");
+  if (dirty) { d.innerHTML = '<b>● borrador sin publicar</b>'; $("#btnPub").style.display = ""; $("#btnDrop").style.display = ""; }
+  else {
+    const u = published && published.updated;
+    d.textContent = u ? "publicado " + new Date(u).toLocaleDateString("es-AR") : "sin publicar";
+    $("#btnPub").style.display = "none"; $("#btnDrop").style.display = "none";
+  }
+}
+function save() {
+  clearTimeout(saveTimer);
+  dirty = true; markState();
+  saveTimer = setTimeout(async () => {
+    try {
+      const s = await seal(MKEY, TE.encode(JSON.stringify(payload())));
+      localStorage.setItem(KEYD, JSON.stringify({ updated: stamp(), iv: s.iv, ct: s.ct }));
+    } catch (e) { $("#savedot").textContent = "no se pudo guardar el borrador"; }
+  }, 400);
+}
+
+/* ===================== MÉTRICAS DESDE DATOS DIARIOS ===================== */
+function rangoMetricas(desde, hasta) {
+  const out = { alcance: 0, vistas: 0, interacciones: 0, clics: 0, visitas: 0, seguidores: 0 };
+  let diasConDatos = 0;
+  for (const [f, d] of Object.entries(state.dias)) {
+    if (f >= desde && f <= hasta) {
+      diasConDatos++;
+      for (const k of Object.keys(out)) out[k] += d[k] || 0;
+    }
+  }
+  return { metricas: out, diasConDatos };
+}
+function metricasDe(c) {
+  if (c.metricas) return c.metricas;
+  return rangoMetricas(c.desde, c.hasta).metricas;
+}
+function diasDe(c) {
+  return Math.max(1, Math.round((new Date(c.hasta) - new Date(c.desde)) / 86400000) + 1);
+}
+function topPostsDe(c, nmax) {
+  return state.posts.filter(p => p.fecha >= c.desde && p.fecha <= c.hasta)
+    .sort((a, b) => (b.vis || 0) - (a.vis || 0)).slice(0, nmax || 6);
+}
+function maxFechaDias() {
+  const ks = Object.keys(state.dias);
+  return ks.length ? ks.sort()[ks.length - 1] : null;
+}
+
+/* ===================== PARSERS DE EXPORTS DE META ===================== */
+function decodificar(buf) {
+  const b = new Uint8Array(buf);
+  if (b.length >= 2 && b[0] === 0xFF && b[1] === 0xFE) return new TextDecoder('utf-16le').decode(buf);
+  if (b.length >= 2 && b[0] === 0xFE && b[1] === 0xFF) return new TextDecoder('utf-16be').decode(buf);
+  return new TextDecoder('utf-8').decode(buf).replace(/^﻿/, '');
+}
+function parseCSVCompleto(texto) { // parser con comillas y saltos de línea adentro
+  const filas = []; let fila = [], campo = '', enComillas = false;
+  for (let i = 0; i < texto.length; i++) {
+    const ch = texto[i];
+    if (enComillas) {
+      if (ch === '"') { if (texto[i+1] === '"') { campo += '"'; i++; } else enComillas = false; }
+      else campo += ch;
+    } else {
+      if (ch === '"') enComillas = true;
+      else if (ch === ',') { fila.push(campo); campo = ''; }
+      else if (ch === '\n' || ch === '\r') {
+        if (ch === '\r' && texto[i+1] === '\n') i++;
+        fila.push(campo); campo = '';
+        if (fila.length > 1 || fila[0] !== '') filas.push(fila);
+        fila = [];
+      } else campo += ch;
+    }
+  }
+  if (campo !== '' || fila.length) { fila.push(campo); filas.push(fila); }
+  return filas;
+}
+const TITULO_A_METRICA = [
+  [/visualizaciones/i, 'vistas'], [/alcance/i, 'alcance'], [/interacciones/i, 'interacciones'],
+  [/clics/i, 'clics'], [/visitas/i, 'visitas'], [/seguidores/i, 'seguidores']
+];
+function procesarArchivo(nombre, texto) {
+  // 1) audiencia (export "Público"): tiene secciones por sexo/edad y ciudades
+  if (/sexo y edad/i.test(texto)) {
+    const aud = { actualizado: hoyISO(), total: null, sexoEdad: [], ciudades: [], paises: [] };
+    const lineas = texto.split(/\r?\n/).map(l => l.trim());
+    let seccion = '';
+    for (const l of lineas) {
+      const limpio = l.replace(/^"|"$/g, '');
+      if (/^\d+$/.test(limpio) && aud.total == null) { aud.total = parseInt(limpio, 10); continue; }
+      if (/sexo y edad/i.test(l)) { seccion = 'edad'; continue; }
+      if (/ciudades/i.test(l)) { seccion = 'ciudad'; continue; }
+      if (/países|paises/i.test(l)) { seccion = 'pais'; continue; }
+      const m = l.match(/^"([^"]+)","([\d,.]+)%?"(?:,"([\d,.]+)%?")?/);
+      if (!m) continue;
+      const v1 = parseFloat(m[2].replace(',', '.')), v2 = m[3] != null ? parseFloat(m[3].replace(',', '.')) : null;
+      if (seccion === 'edad' && m[1] !== 'Edad') aud.sexoEdad.push({ edad: m[1], m: v1, h: v2 || 0 });
+      else if (seccion === 'ciudad' && !/principales/i.test(m[1])) aud.ciudades.push({ c: m[1].split(',')[0], v: v1 });
+      else if (seccion === 'pais' && !/principales/i.test(m[1])) aud.paises.push({ p: m[1], v: v1 });
+    }
+    if (aud.sexoEdad.length) { state.audiencia = aud; return { tipo: 'audiencia', detalle: 'audiencia actualizada (' + (aud.total ? nf(aud.total) + ' seguidores' : 'sin total') + ')' }; }
+  }
+  // 2) export por publicación: encabezado "Identificador de la publicación"
+  if (/Identificador de la publicaci/i.test(texto.slice(0, 300))) {
+    const filas = parseCSVCompleto(texto);
+    const head = filas[0].map(h => h.trim());
+    const col = nombre_ => head.findIndex(h => h === nombre_);
+    const iId = col('Identificador de la publicación'), iDesc = col('Descripción'), iHora = col('Hora de publicación'),
+          iTipo = col('Tipo de publicación'), iVis = col('Visualizaciones'), iAlc = col('Alcance'),
+          iMG = col('Me gusta'), iComp = col('Veces que se compartió'), iGuard = col('Veces que se guardó');
+    if (iId < 0 || iHora < 0) return { tipo: 'error', detalle: nombre + ': no reconozco las columnas' };
+    const tipoMap = { 'Reel de Instagram': 'Reel', 'Secuencia de Instagram': 'Secuencia', 'Imagen de Instagram': 'Imagen' };
+    let nuevos = 0, actualizados = 0, historias = 0;
+    for (const f of filas.slice(1)) {
+      if (f.length < 3) continue;
+      const tipoRaw = f[iTipo] || '';
+      if (/Historia/i.test(tipoRaw)) { historias++; continue; }
+      const hm = (f[iHora] || '').match(/(\d{2})\/(\d{2})\/(\d{4})/);
+      if (!hm) continue;
+      const fecha = hm[3] + '-' + hm[1] + '-' + hm[2];
+      const num = x => { const v = parseFloat(String(x).replace(',', '.')); return isNaN(v) ? 0 : Math.round(v); };
+      const post = {
+        pid: String(f[iId]), fecha, tipo: tipoMap[tipoRaw] || tipoRaw,
+        t: (f[iDesc] || '(sin descripción)').replace(/\s+/g, ' ').trim().slice(0, 80) || '(sin descripción)',
+        vis: num(f[iVis]), alc: num(f[iAlc]), mg: num(f[iMG]), comp: num(f[iComp]), guard: num(f[iGuard])
+      };
+      const i = state.posts.findIndex(p => p.pid === post.pid);
+      if (i >= 0) { state.posts[i] = post; actualizados++; } else { state.posts.push(post); nuevos++; }
+    }
+    state.posts.sort((a, b) => a.fecha.localeCompare(b.fecha));
+    return { tipo: 'posts', detalle: nuevos + ' publicaciones nuevas, ' + actualizados + ' actualizadas' + (historias ? ' (historias ignoradas: ' + historias + ')' : '') };
+  }
+  // 3) serie diaria: título en la 2.ª línea, filas "fecha","valor"
+  const lineas = texto.split(/\r?\n/);
+  const titulo = (lineas[1] || '') + ' ' + (lineas[0] || '');
+  let metrica = null;
+  for (const [re, k] of TITULO_A_METRICA) { if (re.test(titulo)) { metrica = k; break; } }
+  if (!metrica) return { tipo: 'error', detalle: nombre + ': no reconozco el formato' };
+  let cargadas = 0, ultima = null;
+  for (const l of lineas) {
+    const m = l.match(/^"?(\d{4}-\d{2}-\d{2})T[^"]*"?\s*,\s*"?([\d.,]+)"?/);
+    if (!m) continue;
+    const v = parseFloat(m[2].replace(',', '.'));
+    if (isNaN(v)) continue;
+    if (!state.dias[m[1]]) state.dias[m[1]] = {};
+    state.dias[m[1]][metrica] = Math.round(v);
+    cargadas++; ultima = m[1];
+  }
+  return cargadas ? { tipo: 'serie', detalle: metrica + ': ' + cargadas + ' días (hasta ' + fmtDia(ultima) + ')' }
+                  : { tipo: 'error', detalle: nombre + ': sin filas de fechas' };
+}
+
+let resumenCarga = [];
+$("#fileExports").onchange = async e => {
+  const files = [...e.target.files];
+  e.target.value = '';
+  if (!files.length) return;
+  resumenCarga = [];
+  for (const f of files) {
+    try {
+      const texto = decodificar(await f.arrayBuffer());
+      const r = procesarArchivo(f.name, texto);
+      resumenCarga.push((r.tipo === 'error' ? '⚠️ ' : '✓ ') + r.detalle);
+    } catch (err) { resumenCarga.push('⚠️ ' + f.name + ': ' + err.message); }
+  }
+  save();
+  vista = 'form'; editando = null;
+  render();
+};
+
+/* ===================== RENDER ===================== */
+function limpiar() { charts.forEach(c => c.destroy()); charts = []; }
+function render() {
+  limpiar();
+  const tabs = $("#tabs");
+  tabs.innerHTML = '';
+  for (const c of state.cortes) {
+    const b = document.createElement('button');
+    b.className = 'tab' + (vista === c.id ? ' activa' : '');
+    b.textContent = c.label;
+    b.onclick = () => { vista = c.id; render(); };
+    tabs.appendChild(b);
+  }
+  const mk = (txt, id) => {
+    const b = document.createElement('button');
+    b.className = 'tab especial' + (vista === id ? ' activa' : '');
+    b.textContent = txt;
+    b.onclick = () => { vista = id; editando = null; render(); };
+    tabs.appendChild(b);
+  };
+  mk('📈 Mes a mes', 'historico');
+  mk('👥 Audiencia', 'audiencia');
+  mk('+ Nuevo viernes', 'form');
+  const cont = $("#contenido");
+  if (vista === 'form') return renderForm(cont);
+  if (vista === 'audiencia') return renderAudiencia(cont);
+  if (vista === 'historico') return renderHistorico(cont);
+  const c = state.cortes.find(x => x.id === vista);
+  if (!c) { cont.innerHTML = '<div class="vacio"><h2>Sin cortes todavía</h2><p>Importá la semilla (botón de arriba) o cargá el primero con "+ Nuevo viernes".</p></div>'; return; }
+  renderCorte(cont, c);
+}
+function delta(act, prev, porDiaAct, porDiaPrev) {
+  const a = porDiaAct != null ? porDiaAct : act, p = porDiaPrev != null ? porDiaPrev : prev;
+  if (a == null || p == null || p === 0) return '';
+  const d = (a - p) / p * 100;
+  if (Math.abs(d) < 0.5) return '<p class="delta flat">≈ igual ritmo</p>';
+  return `<p class="delta ${d > 0 ? 'up' : 'down'}">${d > 0 ? '▲' : '▼'} ${Math.abs(d).toLocaleString('es-AR',{maximumFractionDigits:1})}% vs. corte anterior</p>`;
+}
+function renderCorte(cont, c) {
+  const m = metricasDe(c);
+  const nd = diasDe(c);
+  const i = state.cortes.findIndex(x => x.id === c.id);
+  const prevC = (i > 0 && !state.cortes[i-1].esBase && !c.esBase) ? state.cortes[i-1] : null;
+  const mPrev = prevC ? metricasDe(prevC) : null;
+  const ndPrev = prevC ? diasDe(prevC) : null;
+
+  let html = `<p class="sechead" style="margin-top:0">${c.esBase ? 'Totales del año — la línea de base' : 'El corte'} · ${nd} día${nd>1?'s':''} (${fmtDia(c.desde)} → ${fmtDia(c.hasta)})${prevC ? ' · flechas vs. ritmo diario del corte anterior' : ''}</p><div class="kpis">`;
+  for (const [k, lbl] of METRICAS) {
+    html += `<div class="kpi"><p class="label">${lbl}</p><p class="value">${k==='seguidores' && !c.esBase && m[k] > 0 ? '+' : ''}${nf(m[k])}</p>${prevC ? delta(null, null, m[k]/nd, mPrev[k]/ndPrev) : ''}</div>`;
+  }
+  html += `</div>`;
+
+  const tp = topPostsDe(c, c.esBase ? 8 : 6);
+  if (tp.length) {
+    html += `<div class="card"><h3>${c.esBase ? 'Top publicaciones del año' : 'Top publicaciones del corte'}</h3><div style="overflow-x:auto"><table><thead><tr>
+      <th>Publicación</th><th>Fecha</th><th>Tipo</th><th class="num">Vis.</th><th class="num">Alcance</th><th class="num">Comp.</th><th class="num">Guard.</th>
+    </tr></thead><tbody>`;
+    for (const p of tp) {
+      html += `<tr><td>${p.t}</td><td>${fmtDia(p.fecha)}</td><td>${p.tipo}</td><td class="num">${nf(p.vis)}</td><td class="num">${nf(p.alc)}</td><td class="num">${nf(p.comp)}</td><td class="num">${nf(p.guard)}</td></tr>`;
+    }
+    html += `</tbody></table></div>`;
+    if (c.esBase) html += `<p class="hint">Ojo: el reel "El sonido del agua" (1M de vis) corre con pauta casi permanente — no leerlo como orgánico puro.</p>`;
+    html += `</div>`;
+  }
+
+  const semanales = state.cortes.filter(x => !x.esBase);
+  if (!c.esBase && semanales.length >= 2) {
+    html += `<div class="card"><h3>Viernes a viernes</h3><p class="sub">Alcance y seguidores nuevos de los últimos cortes</p><div class="chart-box" style="height:280px"><canvas id="chSem"></canvas></div></div>`;
+  }
+  if (c.analisis) {
+    const partes = c.analisis.split(/\n\n+/).map(p => `<p>${p.replace(/^(MI LECTURA:|QUÉ HARÍA:)/, '<strong>$1</strong>')}</p>`).join('');
+    html += `<div class="card analisis"><h3>Análisis y recomendaciones</h3><p class="sub">Devolución de Claude sobre este corte</p><div class="cuerpo">${partes}</div></div>`;
+  }
+  html += `<div class="acciones"><button class="btn chico" id="bEdit">✏️ Editar</button><button class="btn sec chico" id="bDel">Eliminar</button></div>`;
+  cont.innerHTML = html;
+  $("#bEdit").onclick = () => { editando = c.id; vista = 'form'; render(); };
+  $("#bDel").onclick = () => {
+    if (!confirm('¿Eliminar "' + c.label + '"? Desaparece para el equipo cuando publiques.')) return;
+    state.cortes = state.cortes.filter(x => x.id !== c.id);
+    save();
+    vista = state.cortes.length ? state.cortes[state.cortes.length - 1].id : 'form';
+    render();
+  };
+  const el = document.getElementById('chSem');
+  if (el && typeof Chart !== 'undefined') {
+    const ult = semanales.slice(-12);
+    charts.push(new Chart(el, {
+      data: { labels: ult.map(s => fmtDia(s.hasta)), datasets: [
+        { type: 'bar', label: 'Alcance', data: ult.map(s => metricasDe(s).alcance), backgroundColor: '#2E5547', borderRadius: 4, yAxisID: 'y' },
+        { type: 'line', label: 'Seguidores nuevos', data: ult.map(s => metricasDe(s).seguidores), borderColor: '#C98500', backgroundColor: '#C98500', tension: .3, yAxisID: 'y1' } ]},
+      options: { responsive: true, maintainAspectRatio: false,
+        plugins: { tooltip: { callbacks: { label: x => x.dataset.label + ': ' + nf(x.raw) } } },
+        scales: { y: { ticks: { color: '#5C6B64' }, grid: { color: '#E3DFD4' } },
+                  y1: { position: 'right', ticks: { color: '#C98500' }, grid: { display: false } },
+                  x: { ticks: { color: '#5C6B64' }, grid: { display: false } } } }
+    }));
+  }
+}
+
+function renderHistorico(cont) {
+  const fechas = Object.keys(state.dias).sort();
+  if (!fechas.length) { cont.innerHTML = '<div class="vacio"><h2>Sin datos diarios</h2><p>Subí los exports de Meta desde "+ Nuevo viernes" para ver la serie mensual.</p></div>'; return; }
+  const porMes = {};
+  for (const f of fechas) {
+    const mes = f.slice(0, 7);
+    if (!porMes[mes]) porMes[mes] = { alcance: 0, vistas: 0, clics: 0, seguidores: 0 };
+    const d = state.dias[f];
+    for (const k of Object.keys(porMes[mes])) porMes[mes][k] += d[k] || 0;
+  }
+  const meses = Object.keys(porMes).sort();
+  const lbl = meses.map(m => MESES_L[parseInt(m.slice(5), 10) - 1] + (m.slice(0,4) !== fechas[0].slice(0,4) ? " '" + m.slice(2,4) : ''));
+  const reelsPorMes = {};
+  for (const p of state.posts.filter(p => p.tipo === 'Reel')) {
+    const mes = p.fecha.slice(0, 7);
+    (reelsPorMes[mes] = reelsPorMes[mes] || []).push(p.vis || 0);
+  }
+  const medianas = meses.map(m => {
+    const v = (reelsPorMes[m] || []).sort((a, b) => a - b);
+    return v.length ? (v.length % 2 ? v[(v.length-1)/2] : Math.round((v[v.length/2 - 1] + v[v.length/2]) / 2)) : null;
+  });
+  const cant = meses.map(m => (reelsPorMes[m] || []).length);
+  cont.innerHTML = `
+    <div class="card" style="margin-top:0"><h3>Alcance mensual y seguidores nuevos</h3>
+      <p class="sub">El pico mar-abr es el empuje del reel "El sonido del agua" (con pauta casi permanente); la meseta jul-sep es la base propia con 8-9 reels/mes. El último mes puede estar parcial.</p>
+      <div class="leyenda"><span><span class="cuadro" style="background:#2E5547"></span>Alcance</span><span><span class="cuadro" style="background:#C98500"></span>Seguidores nuevos (eje der.)</span></div>
+      <div class="chart-box" style="height:300px"><canvas id="h1"></canvas></div></div>
+    <div class="card"><h3>Mediana por reel y cadencia</h3><p class="sub">La mediana saca a los virales de la cuenta: cómo rinde el reel típico de cada mes</p>
+      <div class="leyenda"><span><span class="cuadro" style="background:#1D9E75"></span>Mediana de vis. por reel</span><span><span class="cuadro" style="background:#2A6F8E"></span>Reels publicados (eje der.)</span></div>
+      <div class="chart-box" style="height:300px"><canvas id="h2"></canvas></div></div>
+    <div class="card"><h3>Clics al enlace por mes</h3><p class="sub">El embudo orgánico hacia WhatsApp/web</p>
+      <div class="chart-box" style="height:260px"><canvas id="h3"></canvas></div></div>`;
+  if (typeof Chart === 'undefined') return;
+  charts.push(new Chart(document.getElementById('h1'), {
+    data: { labels: lbl, datasets: [
+      { type: 'bar', data: meses.map(m => porMes[m].alcance), backgroundColor: '#2E5547', borderRadius: 4, yAxisID: 'y' },
+      { type: 'line', data: meses.map(m => porMes[m].seguidores), borderColor: '#C98500', backgroundColor: '#C98500', tension: .3, yAxisID: 'y1' } ]},
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false },
+        tooltip: { callbacks: { label: x => x.dataset.type === 'line' ? '+' + nf(x.raw) + ' seguidores' : nf(x.raw) + ' de alcance' } } },
+      scales: { y: { ticks: { color: '#5C6B64', callback: v => (v/1000) + 'K' }, grid: { color: '#E3DFD4' } },
+                y1: { position: 'right', ticks: { color: '#C98500' }, grid: { display: false } },
+                x: { ticks: { color: '#5C6B64' }, grid: { display: false } } } }
+  }));
+  charts.push(new Chart(document.getElementById('h2'), {
+    data: { labels: lbl, datasets: [
+      { type: 'bar', data: medianas, backgroundColor: '#1D9E75', borderRadius: 4, yAxisID: 'y' },
+      { type: 'line', data: cant, borderColor: '#2A6F8E', backgroundColor: '#2A6F8E', tension: .3, yAxisID: 'y1' } ]},
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false },
+        tooltip: { callbacks: { label: x => x.dataset.type === 'line' ? x.raw + ' reels' : 'mediana ' + nf(x.raw) + ' vis' } } },
+      scales: { y: { ticks: { color: '#5C6B64' }, grid: { color: '#E3DFD4' } },
+                y1: { position: 'right', min: 0, ticks: { color: '#2A6F8E', stepSize: 2 }, grid: { display: false } },
+                x: { ticks: { color: '#5C6B64' }, grid: { display: false } } } }
+  }));
+  charts.push(new Chart(document.getElementById('h3'), {
+    type: 'bar',
+    data: { labels: lbl, datasets: [{ data: meses.map(m => porMes[m].clics), backgroundColor: '#2E5547', borderRadius: 4 }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false },
+        tooltip: { callbacks: { label: x => nf(x.raw) + ' clics' } } },
+      scales: { y: { ticks: { color: '#5C6B64' }, grid: { color: '#E3DFD4' } }, x: { ticks: { color: '#5C6B64' }, grid: { display: false } } } }
+  }));
+}
+
+function renderAudiencia(cont) {
+  const a = state.audiencia;
+  if (!a) { cont.innerHTML = '<div class="vacio"><h2>Sin datos de audiencia</h2><p>Subí el export "Público" de Meta desde "+ Nuevo viernes".</p></div>'; return; }
+  const totM = a.sexoEdad.reduce((s, r) => s + r.m, 0);
+  const nucleo = a.sexoEdad.filter(r => r.edad === '35-44' || r.edad === '45-54').reduce((s, r) => s + r.m + r.h, 0);
+  cont.innerHTML = `
+    <div class="kpis">
+      <div class="kpi"><p class="label">Seguidores</p><p class="value">${nf(a.total)}</p></div>
+      <div class="kpi"><p class="label">Mujeres</p><p class="value">${pct(totM)}</p></div>
+      <div class="kpi"><p class="label">Núcleo 35-54 años</p><p class="value">${pct(nucleo)}</p></div>
+      <div class="kpi"><p class="label">Ciudad #1</p><p class="value" style="font-size:20px">${a.ciudades[0] ? a.ciudades[0].c : '—'}</p><p class="delta flat">${a.ciudades[0] ? pct(a.ciudades[0].v) + ' de la audiencia' : ''}</p></div>
+    </div>
+    <div class="card"><h3>Sexo y edad</h3><p class="sub">El núcleo son mujeres de 35 a 54: la planificadora del viaje familiar — el mismo perfil que convierte en WhatsApp</p>
+      <div class="leyenda"><span><span class="cuadro" style="background:#B14A72"></span>Mujeres</span><span><span class="cuadro" style="background:#2A6F8E"></span>Hombres</span></div>
+      <div class="chart-box" style="height:280px"><canvas id="a1"></canvas></div></div>
+    <div class="card"><h3>Principales ciudades</h3><p class="sub">Mar del Plata #1: audiencia enorme a 40 minutos — oportunidad para campañas geo de escapadas de finde en temporada baja</p>
+      <div class="chart-box" style="height:${a.ciudades.length * 34 + 60}px"><canvas id="a2"></canvas></div></div>
+    <div class="card"><h3>Países</h3><p class="sub">${a.paises.map(p => p.p + ' ' + pct(p.v)).join(' · ')}</p></div>
+    <p class="hint">Audiencia al ${fmtDia(a.actualizado)}. Se actualiza subiendo el export "Público" en "+ Nuevo viernes".</p>`;
+  if (typeof Chart === 'undefined') return;
+  charts.push(new Chart(document.getElementById('a1'), {
+    type: 'bar',
+    data: { labels: a.sexoEdad.map(r => r.edad), datasets: [
+      { label: 'Mujeres', data: a.sexoEdad.map(r => r.m), backgroundColor: '#B14A72', borderRadius: 4 },
+      { label: 'Hombres', data: a.sexoEdad.map(r => r.h), backgroundColor: '#2A6F8E', borderRadius: 4 } ]},
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false },
+        tooltip: { callbacks: { label: x => x.dataset.label + ': ' + pct(x.raw) } } },
+      scales: { y: { ticks: { color: '#5C6B64', callback: v => v + '%' }, grid: { color: '#E3DFD4' } },
+                x: { ticks: { color: '#5C6B64' }, grid: { display: false } } } }
+  }));
+  charts.push(new Chart(document.getElementById('a2'), {
+    type: 'bar',
+    data: { labels: a.ciudades.map(c => c.c), datasets: [{ data: a.ciudades.map(c => c.v), backgroundColor: a.ciudades.map((_, i) => i === 0 ? '#1D9E75' : '#8B8A82'), borderRadius: 4, maxBarThickness: 22 }] },
+    options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false },
+        tooltip: { callbacks: { label: x => pct(x.raw) + ' de los seguidores' } } },
+      scales: { x: { ticks: { color: '#5C6B64', callback: v => v + '%' }, grid: { color: '#E3DFD4' } },
+                y: { ticks: { color: '#5C6B64' }, grid: { display: false } } } }
+  }));
+}
+
+function renderForm(cont) {
+  const c = editando ? state.cortes.find(x => x.id === editando) : null;
+  const ultimo = state.cortes.length ? state.cortes[state.cortes.length - 1] : null;
+  const desdeSug = c ? c.desde : (ultimo ? sumaDia(ultimo.hasta, 1) : '');
+  const hastaSug = c ? c.hasta : (maxFechaDias() || hoyISO());
+  const resumen = resumenCarga.length ? `<div class="aviso ok"><strong>Archivos procesados:</strong><br>${resumenCarga.join('<br>')}</div>` : '';
+  cont.innerHTML = `<div class="card" style="margin-top:0">
+    <h3>${c ? 'Editar corte' : 'Nuevo viernes'}</h3>
+    <p class="sub">Paso 1: subí los exports de Meta (los CSVs de Alcance, Visualizaciones, Clics, Seguidores, etc., el de publicaciones y el de Público si lo tenés). Paso 2: elegí el rango y guardá — las métricas se calculan solas desde los datos.</p>
+    <div class="dropzone" id="dz">📂 Tocá acá o arrastrá los CSVs exportados de Meta<br><span style="font-size:12px">(acepta varios a la vez; las historias se ignoran)</span></div>
+    ${resumen}
+    <div class="form-grid">
+      <div><label class="f">Nombre de la solapa</label><input type="text" id="fLabel" value="${c ? c.label : ''}" placeholder="Vie ${fmtDia(hastaSug || hoyISO())}"></div>
+      <div><label class="f">Desde</label><input type="date" id="fDesde" value="${desdeSug}"></div>
+      <div><label class="f">Hasta</label><input type="date" id="fHasta" value="${hastaSug}"></div>
+    </div>
+    <div id="fPreview"></div>
+    <div style="margin-top:14px"><label class="f">Análisis y recomendaciones (opcional)</label>
+    <textarea id="fAnalisis" style="min-height:90px" placeholder="La devolución del corte — pedísela a Claude y pegala acá.">${c && c.analisis ? c.analisis : ''}</textarea></div>
+    <div id="fAviso"></div>
+    <div class="acciones">
+      <button class="btn" id="fSave">${c ? 'Guardar cambios' : 'Agregar corte'}</button>
+      ${c ? '<button class="btn sec" id="fCancel">Cancelar</button>' : ''}
+    </div>
+  </div>`;
+  const dz = $("#dz");
+  dz.onclick = () => $("#fileExports").click();
+  dz.ondragover = e => { e.preventDefault(); dz.classList.add('sobre'); };
+  dz.ondragleave = () => dz.classList.remove('sobre');
+  dz.ondrop = e => {
+    e.preventDefault(); dz.classList.remove('sobre');
+    const dt = new DataTransfer();
+    [...e.dataTransfer.files].forEach(f => dt.items.add(f));
+    $("#fileExports").files = dt.files;
+    $("#fileExports").onchange({ target: $("#fileExports") });
+  };
+  const preview = () => {
+    const d = $("#fDesde").value, h = $("#fHasta").value;
+    if (!d || !h || d > h) { $("#fPreview").innerHTML = ''; return; }
+    const { metricas: m, diasConDatos } = rangoMetricas(d, h);
+    const ndTot = Math.round((new Date(h) - new Date(d)) / 86400000) + 1;
+    let html = `<p class="sechead">Vista previa del corte (${diasConDatos}/${ndTot} días con datos)</p><div class="kpis">`;
+    for (const [k, lbl] of METRICAS) html += `<div class="kpi"><p class="label">${lbl}</p><p class="value">${nf(m[k])}</p></div>`;
+    html += `</div>`;
+    if (diasConDatos < ndTot) html += `<div class="aviso">Faltan días en el rango: el export de Meta tiene que llegar hasta el ${fmtDia(h)}. Subí series más nuevas o achicá el "hasta".</div>`;
+    $("#fPreview").innerHTML = html;
+  };
+  $("#fDesde").onchange = preview; $("#fHasta").onchange = preview;
+  preview();
+  $("#fSave").onclick = () => {
+    const label = $("#fLabel").value.trim() || ('Vie ' + fmtDia($("#fHasta").value || hoyISO()));
+    const d = $("#fDesde").value, h = $("#fHasta").value;
+    const aviso = $("#fAviso");
+    if (!d || !h || d > h) { aviso.innerHTML = '<div class="aviso error">Revisá el rango de fechas.</div>'; return; }
+    const { diasConDatos } = rangoMetricas(d, h);
+    if (!diasConDatos) { aviso.innerHTML = '<div class="aviso error">No hay datos diarios en ese rango: subí primero los exports de Meta.</div>'; return; }
+    const corte = {
+      id: editando || ('c-' + h + '-' + Date.now()),
+      label, fecha: h, desde: d, hasta: h,
+      esBase: c ? !!c.esBase : false,
+      analisis: $("#fAnalisis").value.trim() || null
+    };
+    if (editando) { const i = state.cortes.findIndex(x => x.id === editando); state.cortes[i] = corte; }
+    else state.cortes.push(corte);
+    state.cortes.sort((a, b) => a.fecha.localeCompare(b.fecha));
+    editando = null; resumenCarga = [];
+    save();
+    vista = corte.id;
+    render();
+  };
+  if (c) $("#fCancel").onclick = () => { const id = editando; editando = null; vista = id; render(); };
+}
+
+/* ===================== CSV / SEMILLA ===================== */
+$("#btnCsv").onclick = () => {
+  const fechas = Object.keys(state.dias).sort();
+  if (!fechas.length) { toast("No hay datos"); return; }
+  const sep = ";";
+  let out = "Fecha" + sep + METRICAS.map(m => m[1]).join(sep) + "\n";
+  for (const f of fechas) {
+    out += f + sep + METRICAS.map(([k]) => state.dias[f][k] ?? '').join(sep) + "\n";
+  }
+  const b = new Blob(["﻿" + out], { type: "text/csv;charset=utf-8" });
+  const u = URL.createObjectURL(b);
+  const a = document.createElement("a"); a.href = u; a.download = "ig-organico-diario.csv"; a.click(); URL.revokeObjectURL(u);
+  toast("CSV descargado");
+};
+$("#btnImport").onclick = () => $("#fileSemilla").click();
+$("#fileSemilla").onchange = e => {
+  const f = e.target.files[0];
+  e.target.value = '';
+  if (!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try {
+      const j = JSON.parse(r.result);
+      if (!j.dias && !j.cortes) { toast("Ese archivo no parece la semilla"); return; }
+      if (Object.keys(state.dias).length && !confirm("Ya hay datos cargados. ¿Reemplazarlos por los de la semilla?")) return;
+      state.dias = j.dias || {}; state.posts = j.posts || []; state.cortes = j.cortes || []; state.audiencia = j.audiencia || null;
+      state.cortes.sort((a, b) => a.fecha.localeCompare(b.fecha));
+      vista = state.cortes.length ? state.cortes[state.cortes.length - 1].id : 'form';
+      save(); render();
+      toast("Semilla importada. Publicá para que la vea el equipo.");
+    } catch (err) { toast("No pude leer el JSON: " + err.message); }
+  };
+  r.readAsText(f);
+};
+
+/* ===================== PUBLICAR ===================== */
+$("#btnPub").onclick = async () => {
+  try {
+    try {
+      const rr = await fetch("datos.json?v=" + Date.now(), { cache: "no-store" });
+      if (rr.ok) {
+        const rem = await rr.json();
+        if (published && published.updated && rem.updated && rem.updated > published.updated) {
+          toast("El tablero se actualizó después de que lo abriste. Recargá antes de publicar.");
+          return;
+        }
+      }
+    } catch (e) {}
+    const env = await buildEnvelope();
+    const tok = await getToken();
+    if (tok) {
+      $("#btnPub").disabled = true; $("#btnPub").textContent = "Publicando…";
+      await publishDirect(env, tok);
+      $("#btnPub").disabled = false; $("#btnPub").textContent = "Publicar cambios";
+      published = Object.assign(payload(), { updated: env.updated });
+      try { localStorage.removeItem(KEYD); } catch (e) {}
+      dirty = false; markState();
+      toast("Publicado en GitHub. En un minuto lo ve todo el equipo.");
+      return;
+    }
+    const b = new Blob([JSON.stringify(env, null, 2)], { type: "application/json" });
+    const u = URL.createObjectURL(b);
+    const a = document.createElement("a"); a.href = u; a.download = "datos.json"; a.click(); URL.revokeObjectURL(u);
+    published = Object.assign(payload(), { updated: env.updated });
+    try { localStorage.removeItem(KEYD); } catch (e) {}
+    dirty = false; markState();
+    toast("datos.json cifrado — subilo con publicar.bat");
+  } catch (e) {
+    $("#btnPub").disabled = false; $("#btnPub").textContent = "Publicar cambios";
+    toast("No se pudo publicar: " + (e.message || "error"));
+  }
+};
+$("#btnDrop").onclick = () => {
+  if (!published) { toast("Todavía no hay una versión publicada"); return; }
+  if (!confirm("¿Descartar tus cambios locales y volver a la versión publicada?")) return;
+  try { localStorage.removeItem(KEYD); } catch (e) {}
+  location.reload();
+};
+
+const REPO = "agustinalvarezspj/ig-marazul";
+const KEYT = "ig_marazul_token";
+async function getToken() {
+  try {
+    const d = JSON.parse(localStorage.getItem(KEYT) || "null");
+    if (!d) return null;
+    return TD.decode(await open_(MKEY, d.iv, d.ct));
+  } catch (e) { return null; }
+}
+async function setToken(t) {
+  if (!t) { localStorage.removeItem(KEYT); return; }
+  const s = await seal(MKEY, TE.encode(t.trim()));
+  localStorage.setItem(KEYT, JSON.stringify({ iv: s.iv, ct: s.ct }));
+}
+async function publishDirect(env, tok) {
+  const url = "https://api.github.com/repos/" + REPO + "/contents/datos.json";
+  const h = { "Authorization": "Bearer " + tok, "Accept": "application/vnd.github+json", "Content-Type": "application/json" };
+  let sha = null;
+  const cur = await fetch(url + "?ref=main", { headers: h });
+  if (cur.status === 401 || cur.status === 403) throw new Error("token inválido o sin permiso");
+  if (cur.ok) sha = (await cur.json()).sha;
+  const content = btoa(unescape(encodeURIComponent(JSON.stringify(env, null, 2))));
+  const last = state.cortes[state.cortes.length - 1];
+  const body = { message: "IG organico actualizado " + (last ? last.label : ""), content, branch: "main" };
+  if (sha) body.sha = sha;
+  const r = await fetch(url, { method: "PUT", headers: h, body: JSON.stringify(body) });
+  if (!r.ok) throw new Error("GitHub respondió " + r.status);
+}
+
+/* ===================== EQUIPO ===================== */
+$("#btnTeam").onclick = () => {
+  const box = $("#teamList"); box.innerHTML = "";
+  envelope.users.forEach(u => {
+    const r = document.createElement("div"); r.className = "userrow";
+    const s1 = document.createElement("span"); s1.textContent = u.u; r.appendChild(s1);
+    if (u.u === CURUSER) { const me = document.createElement("span"); me.className = "me"; me.textContent = "vos"; r.appendChild(me); }
+    else {
+      const b = document.createElement("button"); b.className = "btn sec chico"; b.textContent = "Quitar";
+      b.onclick = () => {
+        if (!confirm("¿Quitar a " + u.u + "? No va a poder entrar más.")) return;
+        envelope.users = envelope.users.filter(x => x.u !== u.u);
+        dirty = true; markState(); $("#btnTeam").click();
+        toast("Publicá para que el cambio tenga efecto");
+      };
+      r.appendChild(b);
+    }
+    box.appendChild(r);
+  });
+  $("#teamModal").classList.add("show");
+  refreshTokState();
+};
+async function refreshTokState() {
+  const t = await getToken();
+  $("#tTokState").textContent = t
+    ? "Activa en este navegador: 'Publicar cambios' sube directo al repo."
+    : "No configurada: 'Publicar cambios' descarga el archivo para subirlo a mano.";
+}
+$("#tTokSave").onclick = async () => {
+  const t = $("#tToken").value.trim();
+  if (!t) { toast("Pegá el token primero"); return; }
+  if (!/^(github_pat_|ghp_)/.test(t)) { toast("Eso no parece un token de GitHub"); return; }
+  await setToken(t); $("#tToken").value = "";
+  refreshTokState(); toast("Token guardado, cifrado con tu clave");
+};
+$("#tTokDrop").onclick = async () => { await setToken(null); refreshTokState(); toast("Token quitado"); };
+$("#tClose").onclick = () => $("#teamModal").classList.remove("show");
+$("#teamModal").onclick = e => { if (e.target === $("#teamModal")) $("#teamModal").classList.remove("show"); };
+$("#tAdd").onclick = async () => {
+  const u = norm($("#tUser").value), p = $("#tPass").value;
+  if (!u || !p) { toast("Completá usuario y contraseña"); return; }
+  if (p.length < 12) { toast("Mínimo 12 caracteres"); return; }
+  if (envelope.users.some(x => x.u === u)) { toast("Ese usuario ya existe"); return; }
+  envelope.users.push(await wrapFor(u, p, MASTER));
+  $("#tUser").value = ""; $("#tPass").value = "";
+  dirty = true; markState(); $("#btnTeam").click();
+  toast("Usuario creado. Publicá para activarlo.");
+};
+$("#tChange").onclick = async () => {
+  const p = $("#tNewPass").value;
+  if (p.length < 12) { toast("Mínimo 12 caracteres"); return; }
+  envelope.users = envelope.users.map(x => x.u === CURUSER ? null : x).filter(Boolean);
+  envelope.users.push(await wrapFor(CURUSER, p, MASTER));
+  $("#tNewPass").value = "";
+  dirty = true; markState();
+  toast("Contraseña cambiada. Publicá para activarla.");
+};
+
+bootGate();
+})();
+</script>
+</body>
+</html>
