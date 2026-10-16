@@ -479,6 +479,9 @@ function procesarArchivo(nombre, texto) {
 }
 
 let resumenCarga = [];
+const leerBuffer = f => (typeof f.arrayBuffer === 'function')
+  ? f.arrayBuffer()
+  : new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = () => rej(new Error('no se pudo leer')); r.readAsArrayBuffer(f); });
 $("#fileExports").onchange = async e => {
   const files = [...e.target.files];
   e.target.value = '';
@@ -486,7 +489,7 @@ $("#fileExports").onchange = async e => {
   resumenCarga = [];
   for (const f of files) {
     try {
-      const texto = decodificar(await f.arrayBuffer());
+      const texto = decodificar(await leerBuffer(f));
       const r = procesarArchivo(f.name, texto);
       resumenCarga.push((r.tipo === 'error' ? '⚠️ ' : '✓ ') + r.detalle);
     } catch (err) { resumenCarga.push('⚠️ ' + f.name + ': ' + err.message); }
