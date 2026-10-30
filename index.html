@@ -407,26 +407,43 @@ const TITULO_A_METRICA = [
   [/visualizaciones/i, 'vistas'], [/alcance/i, 'alcance'], [/interacciones/i, 'interacciones'],
   [/clics/i, 'clics'], [/visitas/i, 'visitas'], [/seguidores/i, 'seguidores']
 ];
+const ETIQUETAS_AUDIENCIA = { 'Buenos Aires, Argentina': 'Buenos Aires (CABA)', 'Estados Unidos': 'EE.UU.' };
 function procesarArchivo(nombre, texto) {
-  // 1) audiencia (export "Público"): tiene secciones por sexo/edad y ciudades
-  if (/sexo y edad/i.test(texto)) {
+  // 1) audiencia (export "Público"): "sexo y edad" con filas por ítem, o "Edad y sexo" con ciudades y países en dos filas horizontales
+  if (/sexo y edad|edad y sexo/i.test(texto)) {
     const aud = { actualizado: hoyISO(), total: null, sexoEdad: [], ciudades: [], paises: [] };
-    const lineas = texto.split(/\r?\n/).map(l => l.trim());
-    let seccion = '';
-    for (const l of lineas) {
-      const limpio = l.replace(/^"|"$/g, '');
-      if (/^\d+$/.test(limpio) && aud.total == null) { aud.total = parseInt(limpio, 10); continue; }
-      if (/sexo y edad/i.test(l)) { seccion = 'edad'; continue; }
-      if (/ciudades/i.test(l)) { seccion = 'ciudad'; continue; }
-      if (/países|paises/i.test(l)) { seccion = 'pais'; continue; }
-      const m = l.match(/^"([^"]+)","([\d,.]+)%?"(?:,"([\d,.]+)%?")?/);
-      if (!m) continue;
-      const v1 = parseFloat(m[2].replace(',', '.')), v2 = m[3] != null ? parseFloat(m[3].replace(',', '.')) : null;
-      if (seccion === 'edad' && m[1] !== 'Edad') aud.sexoEdad.push({ edad: m[1], m: v1, h: v2 || 0 });
-      else if (seccion === 'ciudad' && !/principales/i.test(m[1])) aud.ciudades.push({ c: m[1].split(',')[0], v: v1 });
-      else if (seccion === 'pais' && !/principales/i.test(m[1])) aud.paises.push({ p: m[1], v: v1 });
+    const filas = parseCSVCompleto(texto).map(f => f.map(c => c.trim()));
+    const esNum = x => /^[\d.,]+%?$/.test(x);
+    const num = x => parseFloat(x.replace(',', '.'));
+    const agregar = (seccion, n, v) => {
+      if (seccion === 'ciudad') aud.ciudades.push({ c: ETIQUETAS_AUDIENCIA[n] || n.split(',')[0], v });
+      else aud.paises.push({ p: ETIQUETAS_AUDIENCIA[n] || n, v });
+    };
+    let seccion = '', enListas = false;
+    for (let i = 0; i < filas.length; i++) {
+      const f = filas[i], sig = filas[i + 1];
+      if (f.length === 1 && /^\d+$/.test(f[0]) && !enListas && aud.total == null) { aud.total = parseInt(f[0], 10); continue; }
+      if (/sexo y edad|edad y sexo/i.test(f[0])) { seccion = 'edad'; enListas = true; continue; }
+      if (/ciudades/i.test(f[0])) { seccion = 'ciudad'; enListas = true; continue; }
+      if (/países|paises/i.test(f[0])) { seccion = 'pais'; enListas = true; continue; }
+      if (seccion === 'ciudad' || seccion === 'pais') {
+        if (sig && sig.length === f.length && !f.some(esNum) && sig.every(esNum)) { // nombres en una fila, valores en la siguiente
+          f.forEach((n, j) => agregar(seccion, n, num(sig[j])));
+          i++; continue;
+        }
+        if (f.length >= 2 && !esNum(f[0]) && esNum(f[1])) { agregar(seccion, f[0], num(f[1])); continue; }
+      } else if (seccion === 'edad' && f.length >= 2 && !esNum(f[0]) && esNum(f[1])) {
+        aud.sexoEdad.push({ edad: f[0], m: num(f[1]), h: f[2] != null && esNum(f[2]) ? num(f[2]) : 0 });
+        continue;
+      }
+      if (f.length === 1) seccion = ''; // otra sección del export (ej. "Seguimientos"): no es audiencia
     }
-    if (aud.sexoEdad.length) { state.audiencia = aud; return { tipo: 'audiencia', detalle: 'audiencia actualizada (' + (aud.total ? nf(aud.total) + ' seguidores' : 'sin total') + ')' }; }
+    if (!aud.sexoEdad.length || !aud.ciudades.length || !aud.paises.length) return { tipo: 'error', detalle: nombre + ': export de Público incompleto, no actualicé la audiencia' };
+    const totalPrevio = state.audiencia && state.audiencia.total;
+    const conservaTotal = aud.total == null && totalPrevio != null;
+    if (conservaTotal) aud.total = totalPrevio;
+    state.audiencia = aud;
+    return { tipo: 'audiencia', detalle: 'audiencia actualizada (' + (aud.total == null ? 'sin total' : nf(aud.total) + ' seguidores' + (conservaTotal ? ', total anterior: el export no lo trae' : '')) + ')' };
   }
   // 2) export por publicación: encabezado "Identificador de la publicación"
   if (/Identificador de la publicaci/i.test(texto.slice(0, 300))) {
